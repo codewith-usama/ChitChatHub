@@ -1,6 +1,9 @@
+import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/complete_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -10,6 +13,53 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+
+  void checkValue() {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    if (email == "" || password == "" || confirmPassword == "") {
+      print('please fill all the fields');
+    } else if (password != confirmPassword) {
+      print("both password do not match");
+    } else {
+      signUp(email, password);
+    }
+  }
+
+  void signUp(String email, String password) async {
+    UserCredential? credential;
+    try {
+      credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (ex) {
+      print(ex.code.toString());
+    }
+
+    if (credential != null) {
+      String uid = credential.user!.uid;
+      UserModel userModel = UserModel(
+        uid: uid,
+        email: email,
+        fullName: "",
+        profilePicUrl: "",
+      );
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .set(userModel.toMap())
+          .then((value) {
+        print('new user created');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,32 +80,38 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const TextField(
-                    decoration: InputDecoration(
+                  TextField(
+                    controller: emailController,
+                    decoration: const InputDecoration(
                       labelText: "Email Address",
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const TextField(
+                  TextField(
+                    controller: passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Password",
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const TextField(
+                  TextField(
+                    controller: confirmPasswordController,
                     obscureText: true,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: "Confirm Password",
                     ),
                   ),
                   const SizedBox(height: 20),
                   CupertinoButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const CompleteProfilePage(),
-                      ),
-                    ),
+                    onPressed: () {
+                      checkValue();
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const CompleteProfilePage(),
+                      //   ),
+                      // );
+                    },
                     color: Theme.of(context).colorScheme.primary,
                     child: const Text('Sign Up'),
                   ),
