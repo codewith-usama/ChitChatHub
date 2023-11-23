@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CompleteProfilePage extends StatefulWidget {
   const CompleteProfilePage({super.key});
@@ -9,6 +13,58 @@ class CompleteProfilePage extends StatefulWidget {
 }
 
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
+  File? imageFile;
+  TextEditingController fullNameController = TextEditingController();
+
+  void selectImage(ImageSource source) async {
+    XFile? pickedFile = await ImagePicker().pickImage(source: source);
+    if (pickedFile != null) {
+      cropImage(pickedFile);
+    }
+  }
+
+  void cropImage(XFile file) async {
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: file.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      compressQuality: 20,
+    );
+    final File img = File(croppedFile!.path);
+    setState(() {
+      imageFile = img;
+    });
+  }
+
+  void showPhotoOptions() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Upload Profile Picture"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                selectImage(ImageSource.gallery);
+              },
+              leading: const Icon(Icons.photo),
+              title: const Text("Select from Gallery"),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                selectImage(ImageSource.camera);
+              },
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Take a photo"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,19 +80,24 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             children: [
               const SizedBox(height: 20),
               CupertinoButton(
-                onPressed: () {},
+                onPressed: () => showPhotoOptions(),
                 padding: const EdgeInsets.all(0),
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   radius: 60,
-                  child: Icon(
-                    Icons.person,
-                    size: 60,
-                  ),
+                  backgroundImage:
+                      (imageFile != null) ? FileImage(imageFile!) : null,
+                  child: (imageFile == null)
+                      ? const Icon(
+                          Icons.person,
+                          size: 60,
+                        )
+                      : null,
                 ),
               ),
               const SizedBox(height: 20),
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: fullNameController,
+                decoration: const InputDecoration(
                   labelText: "Full Name",
                 ),
               ),
