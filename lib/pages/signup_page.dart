@@ -1,5 +1,4 @@
 import 'package:chat_app/models/user_model.dart';
-import 'package:chat_app/pages/complete_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
