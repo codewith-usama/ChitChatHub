@@ -1,12 +1,23 @@
 import 'dart:io';
 
+import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/pages/home_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CompleteProfilePage extends StatefulWidget {
-  const CompleteProfilePage({super.key});
+  final UserModel userModel;
+  final User firebaseUser;
+  const CompleteProfilePage({
+    super.key,
+    required this.userModel,
+    required this.firebaseUser,
+  });
 
   @override
   State<CompleteProfilePage> createState() => _CompleteProfilePageState();
@@ -15,6 +26,45 @@ class CompleteProfilePage extends StatefulWidget {
 class _CompleteProfilePageState extends State<CompleteProfilePage> {
   File? imageFile;
   TextEditingController fullNameController = TextEditingController();
+
+  void checkValue() {
+    String name = fullNameController.text.trim();
+    if (name == "" || imageFile == null) {
+      print('please fill both fields');
+    } else {
+      uploadData(name);
+    }
+  }
+
+  void uploadData(name) async {
+    UploadTask uploadTask = FirebaseStorage.instance
+        .ref("profile_pictures")
+        .child(widget.userModel.uid.toString())
+        .putFile(imageFile!);
+
+    TaskSnapshot snapshot = await uploadTask;
+
+    String imageUrl = await snapshot.ref.getDownloadURL();
+
+    widget.userModel.fullName = name;
+    widget.userModel.profilePicUrl = imageUrl;
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(widget.userModel.uid)
+        .set(widget.userModel.toMap(), SetOptions(merge: true))
+        .then(
+      (value) {
+        print('Data uploaded');
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomePage(
+                userModel: widget.userModel, user: widget.firebaseUser),
+          ),
+        );
+      },
+    );
+  }
 
   void selectImage(ImageSource source) async {
     XFile? pickedFile = await ImagePicker().pickImage(source: source);
@@ -103,7 +153,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               ),
               const SizedBox(height: 20),
               CupertinoButton(
-                onPressed: () {},
+                onPressed: () {
+                  checkValue();
+                },
                 color: Theme.of(context).colorScheme.primary,
                 child: const Text('Submit'),
               ),

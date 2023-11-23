@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/pages/signup_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,6 +48,14 @@ class _LoginPageState extends State<LoginPage> {
           UserModel.fromMap(userData.data() as Map<String, dynamic>);
 
       print('login sucesfull');
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomePage(
+            userModel: userModel,
+            user: credential!.user!,
+          ),
+        ),
+      );
     }
   }
 

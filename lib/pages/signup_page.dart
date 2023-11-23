@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/pages/complete_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -53,9 +54,17 @@ class _SignupPageState extends State<SignupPage> {
           .collection("users")
           .doc(uid)
           .set(userModel.toMap())
-          .then((value) {
-        print('new user created');
-      });
+          .then(
+        (value) {
+          print('new user created');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => CompleteProfilePage(
+                  userModel: userModel, firebaseUser: credential!.user!),
+            ),
+          );
+        },
+      );
     }
   }
 
