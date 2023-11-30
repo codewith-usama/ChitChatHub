@@ -60,6 +60,7 @@ class _SearchPageState extends State<SearchPage> {
                 stream: FirebaseFirestore.instance
                     .collection("users")
                     .where("email", isEqualTo: _searchController.text)
+                    .where("email", isNotEqualTo: widget.userModel.email)
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
