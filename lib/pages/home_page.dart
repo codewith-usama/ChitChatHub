@@ -19,23 +19,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    print('home');
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.lightBlue,
         centerTitle: true,
-        title: const Text('ChitChatHub'),
+        title: const Text('ChitChatHub', style: TextStyle(color: Colors.white)),
       ),
-      body: SafeArea(
-        child: Container(),
+      body: const SafeArea(
+        child: SizedBox.shrink(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) =>
-                  SearchPage(userModel: widget.userModel, user: widget.user),
+              builder: (context) {
+                return SearchPage(
+                    userModel: widget.userModel, user: widget.user);
+              },
             ),
           );
         },

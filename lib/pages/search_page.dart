@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +18,15 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final TextEditingController _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
-        backgroundColor: Colors.lightBlue,
+        title: const Text(
+          'Search',
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
       ),
       body: SafeArea(
@@ -33,19 +37,56 @@ class _SearchPageState extends State<SearchPage> {
           ),
           child: Column(
             children: [
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
                   labelText: "Email Address",
                 ),
               ),
               const SizedBox(height: 20),
               CupertinoButton(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.tertiary,
                 child: const Text('Search'),
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {});
+                },
               ),
               const SizedBox(height: 20),
-              // StreamBuilder(stream: stream, builder: builder)
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("users")
+                    .where("email", isEqualTo: _searchController.text)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data!.docs.isNotEmpty) {
+                        Map<String, dynamic> data = snapshot.data!.docs[0]
+                            .data() as Map<String, dynamic>;
+                        UserModel searchUserModel = UserModel.fromMap(data);
+
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.grey.shade400,
+                            backgroundImage: NetworkImage(searchUserModel.profilePicUrl!),
+                          ),
+                          title: Text(searchUserModel.fullName.toString()),
+                          subtitle: Text(searchUserModel.email.toString()),
+                        );
+                      } else {
+                        return const Center(child: Text("No results found"));
+                      }
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text("An error occurred"));
+                    } else {
+                      return const Center(child: Text("No results found"));
+                    }
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
             ],
           ),
         ),

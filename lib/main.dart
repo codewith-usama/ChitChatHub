@@ -16,8 +16,9 @@ void main() async {
   if (currentUser != null) {
     UserModel? userModel =
         await FirebaseHelper.getUserModelById(currentUser.uid);
+
     if (userModel != null) {
-      MyAppLoggedIn(userModel: userModel, user: currentUser);
+      runApp(MyAppLoggedIn(userModel: userModel, user: currentUser));
     }
   } else {
     runApp(const MainApp());
