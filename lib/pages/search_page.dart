@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user_model.dart';
+import 'package:chat_app/pages/chat_room_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,8 +24,11 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Search',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
@@ -67,12 +71,22 @@ class _SearchPageState extends State<SearchPage> {
                         UserModel searchUserModel = UserModel.fromMap(data);
 
                         return ListTile(
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const ChatRoomPage(),
+                              ),
+                            );
+                          },
                           leading: CircleAvatar(
                             backgroundColor: Colors.grey.shade400,
-                            backgroundImage: NetworkImage(searchUserModel.profilePicUrl!),
+                            backgroundImage:
+                                NetworkImage(searchUserModel.profilePicUrl!),
                           ),
                           title: Text(searchUserModel.fullName.toString()),
                           subtitle: Text(searchUserModel.email.toString()),
+                          trailing: const Icon(Icons.keyboard_arrow_right),
                         );
                       } else {
                         return const Center(child: Text("No results found"));

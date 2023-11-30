@@ -22,9 +22,14 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.lightBlue,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         centerTitle: true,
-        title: const Text('ChitChatHub', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'ChitChatHub',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
       ),
       body: const SafeArea(
         child: SizedBox.shrink(),
