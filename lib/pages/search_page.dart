@@ -1,3 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:chat_app/main.dart';
+import 'package:chat_app/models/chat_room_model.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/chat_room_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -20,6 +24,37 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
+
+  Future<ChatRoomModel?> getChatRoomModel(UserModel targetUser) async {
+    final ChatRoomModel? chatRoomModel;
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection("chatrooms")
+        .where("participants.${widget.userModel.uid}", isEqualTo: true)
+        .where("participants.${targetUser.uid}", isEqualTo: true)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      var docData = snapshot.docs[0].data();
+      final ChatRoomModel existingChatRoom =
+          ChatRoomModel.fromMap(docData as Map<String, dynamic>);
+
+      chatRoomModel = existingChatRoom;
+    } else {
+      final ChatRoomModel newChatRoom =
+          ChatRoomModel(chatRoomId: uuid.v1(), lastMessage: "", participants: {
+        widget.userModel.uid.toString(): true,
+        targetUser.uid.toString(): true,
+      });
+      await FirebaseFirestore.instance
+          .collection("chatrooms")
+          .doc(newChatRoom.chatRoomId)
+          .set(newChatRoom.toMap());
+
+      chatRoomModel = newChatRoom;
+    }
+    return chatRoomModel;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,24 +104,33 @@ class _SearchPageState extends State<SearchPage> {
                       if (snapshot.data!.docs.isNotEmpty) {
                         Map<String, dynamic> data = snapshot.data!.docs[0]
                             .data() as Map<String, dynamic>;
-                        UserModel searchUserModel = UserModel.fromMap(data);
+                        UserModel searchUser = UserModel.fromMap(data);
 
                         return ListTile(
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const ChatRoomPage(),
-                              ),
-                            );
+                          onTap: () async {
+                            ChatRoomModel? chatRoomModel =
+                                await getChatRoomModel(searchUser);
+                            if (chatRoomModel != null) {
+                              Navigator.pop(context);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ChatRoomPage(
+                                    targetUser: searchUser,
+                                    userModel: widget.userModel,
+                                    user: widget.user,
+                                    chatRoomModel: chatRoomModel,
+                                  ),
+                                ),
+                              );
+                            }
                           },
                           leading: CircleAvatar(
                             backgroundColor: Colors.grey.shade400,
                             backgroundImage:
-                                NetworkImage(searchUserModel.profilePicUrl!),
+                                NetworkImage(searchUser.profilePicUrl!),
                           ),
-                          title: Text(searchUserModel.fullName.toString()),
-                          subtitle: Text(searchUserModel.email.toString()),
+                          title: Text(searchUser.fullName.toString()),
+                          subtitle: Text(searchUser.email.toString()),
                           trailing: const Icon(Icons.keyboard_arrow_right),
                         );
                       } else {
