@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage> {
           stream: FirebaseFirestore.instance
               .collection("chatrooms")
               .where("participants.${widget.userModel.uid}", isEqualTo: true)
+              .orderBy("created_on", descending: true)
               .snapshots(),
           builder: (BuildContext context, snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
@@ -71,20 +72,18 @@ class _HomePageState extends State<HomePage> {
                             as Map<String, dynamic>);
                     Map<String, dynamic>? participants =
                         chatRoomModel.participants;
-                    List<String> participantsKeys =
-                        participants!.keys.toList();
-        
+                    List<String> participantsKeys = participants!.keys.toList();
+
                     participantsKeys.remove(widget.userModel.uid);
-        
+
                     return FutureBuilder(
-                      future: FirebaseHelper.getUserModelById(
-                          participantsKeys[0]),
+                      future:
+                          FirebaseHelper.getUserModelById(participantsKeys[0]),
                       builder: (BuildContext context, userData) {
-                        if (userData.connectionState ==
-                            ConnectionState.done) {
+                        if (userData.connectionState == ConnectionState.done) {
                           if (userData.data != null) {
                             UserModel targetUser = userData.data as UserModel;
-        
+
                             return ListTile(
                               onTap: () {
                                 Navigator.of(context).push(
@@ -100,12 +99,21 @@ class _HomePageState extends State<HomePage> {
                               },
                               leading: CircleAvatar(
                                 backgroundColor: Colors.grey.shade300,
-                                backgroundImage: NetworkImage(
-                                    userData.data!.profilePicUrl!),
+                                backgroundImage:
+                                    NetworkImage(userData.data!.profilePicUrl!),
                               ),
                               title: Text(targetUser.fullName.toString()),
-                              subtitle:
-                                  Text(chatRoomModel.lastMessage.toString()),
+                              subtitle: (chatRoomModel.lastMessage
+                                      .toString()
+                                      .isEmpty)
+                                  ? Text(
+                                      "Say Hi to your new Friend",
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                    )
+                                  : Text(chatRoomModel.lastMessage.toString()),
                             );
                           } else {
                             return const SizedBox.shrink();

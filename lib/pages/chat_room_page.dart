@@ -45,6 +45,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .set(newMessage.toMap());
 
       widget.chatRoomModel.lastMessage = msg;
+      widget.chatRoomModel.createdOn = Timestamp.now();
       FirebaseFirestore.instance
           .collection("chatrooms")
           .doc(widget.chatRoomModel.chatRoomId)
@@ -100,28 +101,23 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           MessageModel currentMessage = MessageModel.fromMap(
                               snapshot.data!.docs[index].data()
                                   as Map<String, dynamic>);
-        
+
                           return Row(
-                            mainAxisAlignment: (currentMessage.sender ==
-                                    widget.userModel.uid)
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
+                            mainAxisAlignment:
+                                (currentMessage.sender == widget.userModel.uid)
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 10),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 2),
+                                margin: const EdgeInsets.symmetric(vertical: 2),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                   color: (currentMessage.sender ==
                                           widget.userModel.uid)
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .secondary
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
+                                      ? Theme.of(context).colorScheme.secondary
+                                      : Theme.of(context).colorScheme.tertiary,
                                 ),
                                 child: Text(
                                   currentMessage.text.toString(),
@@ -153,11 +149,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
               ),
             ),
-        
+
             Container(
               color: Colors.grey.shade200,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: Row(
                 children: [
                   Flexible(

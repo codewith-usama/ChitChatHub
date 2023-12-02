@@ -54,6 +54,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         .set(widget.userModel.toMap(), SetOptions(merge: true))
         .then(
       (value) {
+        Navigator.popUntil(context, (route) => route.isFirst);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => HomePage(

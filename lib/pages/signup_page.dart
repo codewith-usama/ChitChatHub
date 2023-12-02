@@ -58,6 +58,7 @@ class _SignupPageState extends State<SignupPage> {
           .set(userModel.toMap())
           .then(
         (value) {
+          Navigator.popUntil(context, (route) => route.isFirst);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => CompleteProfilePage(
