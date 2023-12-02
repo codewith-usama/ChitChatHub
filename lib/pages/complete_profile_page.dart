@@ -30,7 +30,6 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   void checkValue() {
     String name = fullNameController.text.trim();
     if (name == "" || imageFile == null) {
-      print('please fill both fields');
     } else {
       uploadData(name);
     }
@@ -55,7 +54,6 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
         .set(widget.userModel.toMap(), SetOptions(merge: true))
         .then(
       (value) {
-        print('Data uploaded');
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => HomePage(

@@ -1,3 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:developer';
+
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/home_page.dart';
 import 'package:chat_app/pages/signup_page.dart';
@@ -22,7 +26,6 @@ class _LoginPageState extends State<LoginPage> {
     String password = passwordController.text.trim();
 
     if (email == "" || password == "") {
-      print('please fill all the fields');
     } else {
       login(email, password);
     }
@@ -35,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
       credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (ex) {
-      print(ex.message.toString());
+      log(ex.toString());
     }
 
     if (credential != null) {
@@ -46,9 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
       UserModel userModel =
           UserModel.fromMap(userData.data() as Map<String, dynamic>);
-
-      print('login sucesfull');
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => HomePage(
             userModel: userModel,

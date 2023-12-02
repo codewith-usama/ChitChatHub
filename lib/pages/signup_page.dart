@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/complete_profile_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,9 +25,9 @@ class _SignupPageState extends State<SignupPage> {
     String confirmPassword = confirmPasswordController.text.trim();
 
     if (email == "" || password == "" || confirmPassword == "") {
-      print('please fill all the fields');
+      log('please fill all the fields');
     } else if (password != confirmPassword) {
-      print("both password do not match");
+      log("both password do not match");
     } else {
       signUp(email, password);
     }
@@ -39,7 +41,7 @@ class _SignupPageState extends State<SignupPage> {
         password: password,
       );
     } on FirebaseAuthException catch (ex) {
-      print(ex.code.toString());
+      log(ex.toString());
     }
 
     if (credential != null) {
@@ -56,7 +58,6 @@ class _SignupPageState extends State<SignupPage> {
           .set(userModel.toMap())
           .then(
         (value) {
-          print('new user created');
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => CompleteProfilePage(

@@ -42,7 +42,6 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       final ChatRoomModel newChatRoom = ChatRoomModel(
         chatRoomId: uuid.v1(),
-        createdOn: DateTime.now(),
         lastMessage: "",
         participants: {
           widget.userModel.uid.toString(): true,
