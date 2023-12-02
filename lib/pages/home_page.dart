@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage> {
             stream: FirebaseFirestore.instance
                 .collection("chatrooms")
                 .where("participants.${widget.userModel.uid}", isEqualTo: true)
+                .orderBy('created_on', descending: true)
                 .snapshots(),
             builder: (BuildContext context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
