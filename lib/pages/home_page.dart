@@ -39,18 +39,19 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           child: StreamBuilder(
             stream: FirebaseFirestore.instance
-                .collection("chartooms")
+                .collection("chatrooms")
                 .where("participants.${widget.userModel.uid}", isEqualTo: true)
                 .snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            builder: (BuildContext context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
                 if (snapshot.hasData) {
+                  QuerySnapshot? chatRoomSnapshot =
+                      snapshot.data as QuerySnapshot;
                   return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
+                    itemCount: chatRoomSnapshot.docs.length,
                     itemBuilder: (BuildContext context, int index) {
                       ChatRoomModel chatRoomModel = ChatRoomModel.fromMap(
-                          snapshot.data!.docs[index].data()
+                          chatRoomSnapshot.docs[index].data()
                               as Map<String, dynamic>);
                       Map<String, dynamic>? participants =
                           chatRoomModel.participants;
@@ -62,18 +63,19 @@ class _HomePageState extends State<HomePage> {
                       return FutureBuilder(
                         future: FirebaseHelper.getUserModelById(
                             participantsKeys[0]),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<UserModel?> userData) {
+                        builder: (BuildContext context, userData) {
                           if (userData.connectionState ==
                               ConnectionState.done) {
                             if (userData.data != null) {
+                              UserModel targetUser = userData.data as UserModel;
+
                               return ListTile(
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => ChatRoomPage(
                                         chatRoomModel: chatRoomModel,
-                                        targetUser: userData as UserModel,
+                                        targetUser: targetUser,
                                         userModel: widget.userModel,
                                         user: widget.user,
                                       ),
@@ -85,8 +87,9 @@ class _HomePageState extends State<HomePage> {
                                   backgroundImage: NetworkImage(
                                       userData.data!.profilePicUrl!),
                                 ),
-                                title: Text(userData.data!.fullName!),
-                                subtitle: Text(chatRoomModel.lastMessage!),
+                                title: Text(targetUser.fullName.toString()),
+                                subtitle:
+                                    Text(chatRoomModel.lastMessage.toString()),
                               );
                             } else {
                               return const SizedBox.shrink();
