@@ -116,8 +116,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                   borderRadius: BorderRadius.circular(5),
                                   color: (currentMessage.sender ==
                                           widget.userModel.uid)
-                                      ? Theme.of(context).colorScheme.secondary
-                                      : Theme.of(context).colorScheme.tertiary,
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.secondary,
                                 ),
                                 child: Text(
                                   currentMessage.text.toString(),
@@ -126,10 +126,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                             widget.userModel.uid)
                                         ? Theme.of(context)
                                             .colorScheme
-                                            .onSecondary
+                                            .onPrimary
                                         : Theme.of(context)
                                             .colorScheme
-                                            .onTertiary,
+                                            .onSecondary,
                                   ),
                                 ),
                               ),
@@ -171,7 +171,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     },
                     icon: Icon(
                       Icons.send,
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   )
                 ],
