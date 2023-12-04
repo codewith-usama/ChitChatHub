@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_app/models/ui_helper.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/home_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,6 +37,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   }
 
   void uploadData(name) async {
+    UIHelper.showLoadingDialog(context, "Uploading image...");
     UploadTask uploadTask = FirebaseStorage.instance
         .ref("profile_pictures")
         .child(widget.userModel.uid.toString())

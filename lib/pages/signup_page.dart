@@ -1,5 +1,6 @@
-import 'dart:developer';
+// ignore_for_file: use_build_context_synchronously
 
+import 'package:chat_app/models/ui_helper.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/pages/complete_profile_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,9 +26,11 @@ class _SignupPageState extends State<SignupPage> {
     String confirmPassword = confirmPasswordController.text.trim();
 
     if (email == "" || password == "" || confirmPassword == "") {
-      log('please fill all the fields');
+      UIHelper.showAlertDialog(
+          context, "Incomplete data", "Please fill all the fields");
     } else if (password != confirmPassword) {
-      log("both password do not match");
+      UIHelper.showAlertDialog(
+          context, "Password Mismatch!", "Both password must be same");
     } else {
       signUp(email, password);
     }
@@ -35,13 +38,19 @@ class _SignupPageState extends State<SignupPage> {
 
   void signUp(String email, String password) async {
     UserCredential? credential;
+
+    UIHelper.showLoadingDialog(context, "Creating new account...");
+
     try {
       credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
     } on FirebaseAuthException catch (ex) {
-      log(ex.toString());
+      Navigator.pop(context);
+      UIHelper.showAlertDialog(
+          context, "An error occured", ex.message.toString());
+      FocusManager.instance.primaryFocus?.unfocus();
     }
 
     if (credential != null) {
